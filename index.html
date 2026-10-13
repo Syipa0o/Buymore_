@@ -1,0 +1,618 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Buymore - Smart & Easy Shopping</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        brandPurple: '#7c3aed',
+                        brandBlue: '#2563eb',
+                        brandYellow: '#f59e0b',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .gradient-header {
+            background: linear-gradient(135deg, #6d28d9 0%, #2563eb 50%, #d97706 100%);
+        }
+        .gradient-btn {
+            background: linear-gradient(135deg, #7c3aed 0%, #2563eb 100%);
+        }
+        .gradient-btn:hover {
+            background: linear-gradient(135deg, #6d28d9 0%, #1d4ed8 100%);
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 font-sans text-slate-800 pb-20">
+
+    <!-- HEADER / NAVBAR -->
+    <header class="sticky top-0 z-40 gradient-header text-white shadow-lg">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex items-center justify-between gap-3">
+            <!-- Logo -->
+            <div class="flex items-center space-x-2 cursor-pointer" onclick="switchTab('shop')">
+                <div class="bg-white text-purple-700 p-2 rounded-xl font-black text-xl shadow-md">
+                    <i class="fa-solid fa-cart-shopping"></i>
+                </div>
+                <div>
+                    <h1 class="text-2xl font-black tracking-wider uppercase drop-shadow">Buymore</h1>
+                    <p class="text-[10px] text-amber-200 font-medium tracking-tight">Smart & Easy Shopping</p>
+                </div>
+            </div>
+
+            <!-- Search Bar -->
+            <div class="flex-1 max-w-xl relative">
+                <input type="text" id="searchInput" oninput="renderProducts()" placeholder="Cari makanan & produk impianmu di Buymore..." class="w-full py-2 pl-4 pr-10 rounded-full text-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-amber-400 shadow-inner">
+                <button class="absolute right-3 top-2.5 text-slate-400 hover:text-purple-600">
+                    <i class="fa-solid fa-magnifying-glass"></i>
+                </button>
+            </div>
+
+            <!-- Tombol Keranjang -->
+            <div class="flex items-center space-x-2">
+                <button onclick="openCartModal()" class="relative bg-white/20 hover:bg-white/30 p-2.5 rounded-full transition flex items-center px-4 space-x-2 border border-white/30 shadow">
+                    <i class="fa-solid fa-bag-shopping text-lg"></i>
+                    <span class="text-xs font-bold hidden sm:inline">Keranjang</span>
+                    <span id="cartCountBadge" class="absolute -top-1 -right-1 bg-amber-400 text-slate-900 font-extrabold text-xs w-5 h-5 rounded-full flex items-center justify-center border border-white shadow">0</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- NAV TAB MENU -->
+        <div class="max-w-7xl mx-auto px-4 flex space-x-2 text-sm font-semibold border-t border-white/10 pt-2 pb-2 overflow-x-auto">
+            <button onclick="switchTab('shop')" id="nav-shop" class="px-4 py-1.5 rounded-full bg-white text-purple-700 shadow-sm transition">
+                <i class="fa-solid fa-store mr-1.5"></i> Belanja
+            </button>
+            <button onclick="switchTab('seller')" id="nav-seller" class="px-4 py-1.5 rounded-full hover:bg-white/20 text-white transition">
+                <i class="fa-solid fa-box-archive mr-1.5"></i> Restok & Kelola Produk
+            </button>
+            <button onclick="switchTab('logs')" id="nav-logs" class="px-4 py-1.5 rounded-full hover:bg-white/20 text-white transition">
+                <i class="fa-solid fa-right-left mr-1.5"></i> Laporan Keluar/Masuk Barang
+            </button>
+        </div>
+    </header>
+
+    <!-- CONTENT WRAPPER -->
+    <main class="max-w-7xl mx-auto px-4 mt-6">
+
+        <!-- ================= PAGE 1: TAB BELANJA ================= -->
+        <section id="tab-shop" class="space-block">
+            <!-- Promo Banner -->
+            <div class="bg-gradient-to-r from-purple-600 via-blue-600 to-amber-500 rounded-2xl p-6 text-white shadow-md mb-6 flex flex-col md:flex-row items-center justify-between relative overflow-hidden">
+                <div class="z-10 max-w-md">
+                    <span class="bg-amber-400 text-slate-900 text-xs font-black px-3 py-1 rounded-full uppercase tracking-wider mb-2 inline-block shadow">Buymore Food & Lifestyle Sale</span>
+                    <h2 class="text-3xl font-extrabold mb-2 drop-shadow">Diskon Kuliner & Belanja Seru!</h2>
+                    <p class="text-sm opacity-90 mb-4">Nikmati jajanan lezat dan barang impianmu dengan harga termurah hanya di Buymore.</p>
+                    <button onclick="document.getElementById('productContainer').scrollIntoView({behavior:'smooth'})" class="bg-amber-400 hover:bg-amber-300 text-slate-900 font-bold px-5 py-2.5 rounded-xl shadow-lg transition">Serbu Sekarang <i class="fa-solid fa-arrow-right ml-1"></i></button>
+                </div>
+                <div class="mt-4 md:mt-0 text-7xl text-white/20 z-0">
+                    <i class="fa-solid fa-utensils"></i>
+                </div>
+            </div>
+
+            <!-- Filter Kategori -->
+            <div class="flex items-center space-x-2 overflow-x-auto pb-4 mb-4 custom-scrollbar">
+                <button onclick="filterCategory('all')" class="cat-btn active px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-semibold whitespace-nowrap shadow-sm">Semua Produk</button>
+                <button onclick="filterCategory('Makanan')" class="cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-purple-50 rounded-xl text-sm font-semibold whitespace-nowrap shadow-sm">🍔 Makanan & Minuman</button>
+                <button onclick="filterCategory('Elektronik')" class="cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-purple-50 rounded-xl text-sm font-semibold whitespace-nowrap shadow-sm">Elektronik</button>
+                <button onclick="filterCategory('Fashion')" class="cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-purple-50 rounded-xl text-sm font-semibold whitespace-nowrap shadow-sm">Fashion</button>
+                <button onclick="filterCategory('Aksesoris')" class="cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-purple-50 rounded-xl text-sm font-semibold whitespace-nowrap shadow-sm">Aksesoris</button>
+            </div>
+
+            <!-- Grid Produk -->
+            <div id="productContainer" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <!-- Diisi oleh JS -->
+            </div>
+        </section>
+
+        <!-- ================= PAGE 2: KELOLA & RESTOK BARANG ================= -->
+        <section id="tab-seller" class="hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <!-- Form Tambah Produk Baru -->
+                <div class="bg-white p-5 rounded-2xl shadow-md border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b flex items-center">
+                        <i class="fa-solid fa-circle-plus text-purple-600 mr-2"></i> Tambah Produk Baru
+                    </h3>
+                    <form id="addProductForm" onsubmit="handleAddNewProduct(event)" class="space-y-3">
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Nama Produk / Makanan</label>
+                            <input type="text" id="newProdName" required placeholder="Contoh: Dimsum Mentai Lezat" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">Kategori</label>
+                            <select id="newProdCategory" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                                <option value="Makanan">Makanan & Minuman</option>
+                                <option value="Elektronik">Elektronik</option>
+                                <option value="Fashion">Fashion</option>
+                                <option value="Aksesoris">Aksesoris</option>
+                            </select>
+                        </div>
+                        <div class="grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Harga (Tanpa titik)</label>
+                                <input type="number" id="newProdPrice" required min="1000" placeholder="25000" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-bold text-slate-600 mb-1">Stok Awal</label>
+                                <input type="number" id="newProdStock" required min="1" placeholder="20" class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                            </div>
+                        </div>
+                        <div>
+                            <label class="block text-xs font-bold text-slate-600 mb-1">URL Gambar (Opsional)</label>
+                            <input type="url" id="newProdImage" placeholder="https://..." class="w-full px-3 py-2 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-purple-500">
+                        </div>
+                        <button type="submit" class="w-full py-2.5 gradient-btn text-white font-bold text-sm rounded-xl shadow transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah Ke Katalog
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Tabel Restok & Hapus Barang -->
+                <div class="lg:col-span-2 bg-white p-5 rounded-2xl shadow-md border border-slate-200">
+                    <h3 class="text-lg font-bold text-slate-800 mb-4 pb-2 border-b flex items-center justify-between">
+                        <span><i class="fa-solid fa-boxes-stacked text-amber-500 mr-2"></i> Manajemen Stok & Hapus Produk</span>
+                        <span class="text-xs bg-slate-100 text-slate-600 px-2.5 py-1 rounded-full font-medium">Kelola Toko</span>
+                    </h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-slate-50 text-slate-600 text-xs uppercase font-bold border-b">
+                                    <th class="p-3">Produk / Makanan</th>
+                                    <th class="p-3">Stok</th>
+                                    <th class="p-3">Restok</th>
+                                    <th class="p-3 text-center">Aksi</th>
+                                </tr>
+                            </thead>
+                            <tbody id="restokTableBody" class="text-sm divide-y">
+                                <!-- Diisi JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================= PAGE 3: LAPORAN KELUAR/MASUK BARANG ================= -->
+        <section id="tab-logs" class="hidden">
+            <div class="bg-white p-6 rounded-2xl shadow-md border border-slate-200">
+                <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-4 pb-3 border-b gap-2">
+                    <div>
+                        <h3 class="text-lg font-bold text-slate-800 flex items-center">
+                            <i class="fa-solid fa-clock-rotate-left text-blue-600 mr-2"></i> Laporan Mutasi Keluar/Masuk Barang & Makanan
+                        </h3>
+                        <p class="text-xs text-slate-500">Mencatat otomatis stok masuk dan keluar secara real-time.</p>
+                    </div>
+                    <button onclick="clearStockLogs()" class="text-xs bg-red-50 text-red-600 hover:bg-red-100 font-semibold px-3 py-1.5 rounded-lg border border-red-200 transition">
+                        <i class="fa-solid fa-trash mr-1"></i> Bersihkan Laporan
+                    </button>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-50 text-slate-600 text-xs uppercase font-bold border-b">
+                                <th class="p-3">Waktu</th>
+                                <th class="p-3">Jenis Mutasi</th>
+                                <th class="p-3">Nama Item</th>
+                                <th class="p-3 text-center">Jumlah</th>
+                                <th class="p-3">Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody id="logTableBody" class="text-sm divide-y">
+                            <!-- Diisi oleh JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- ================= MODAL KERANJANG & CHECKOUT ================= -->
+    <div id="cartModal" class="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[90vh] flex flex-col overflow-hidden animate-fadeIn">
+            <div class="gradient-header text-white px-5 py-4 flex items-center justify-between">
+                <h3 class="font-bold text-lg flex items-center">
+                    <i class="fa-solid fa-cart-shopping mr-2"></i> Keranjang Belanja Anda
+                </h3>
+                <button onclick="closeCartModal()" class="text-white/80 hover:text-white text-xl">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+            <div id="cartBody" class="p-5 overflow-y-auto flex-1 custom-scrollbar"></div>
+            <div id="cartFooter" class="p-4 border-t bg-slate-50 flex flex-col sm:flex-row items-center justify-between gap-3">
+                <div>
+                    <span class="text-xs text-slate-500 block">Total Pembayaran:</span>
+                    <span id="cartTotalPrice" class="text-xl font-black text-amber-600">Rp 0</span>
+                </div>
+                <div class="flex space-x-2 w-full sm:w-auto">
+                    <button onclick="closeCartModal()" class="flex-1 sm:flex-none px-4 py-2 border rounded-xl text-sm font-bold text-slate-600 hover:bg-slate-100">Lanjut Belanja</button>
+                    <button onclick="processCheckout()" class="flex-1 sm:flex-none px-6 py-2 bg-gradient-to-r from-amber-500 to-amber-600 text-white font-bold text-sm rounded-xl shadow-md transition">Checkout</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- SCRIPT LOGIC -->
+    <script>
+        let defaultProducts = [
+            { id: 1, name: "Dimsum Mentai Spesial (10 pcs)", price: 35000, category: "Makanan", stock: 25, sold: 140, image: "https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?w=400" },
+            { id: 2, name: "Es Kopi Susu Gula Aren", price: 18000, category: "Makanan", stock: 40, sold: 290, image: "https://images.unsplash.com/photo-1517701604599-bb29b565090c?w=400" },
+            { id: 3, name: "Keripik Pisang Cokelat Lumer", price: 22000, category: "Makanan", stock: 30, sold: 180, image: "https://images.unsplash.com/photo-1599490659213-e2b9ef2750bc?w=400" },
+            { id: 4, name: "Burger Sapi Keju Leleh", price: 30000, category: "Makanan", stock: 15, sold: 95, image: "https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=400" },
+            { id: 5, name: "Smartwatch Sport Z1", price: 299000, category: "Elektronik", stock: 10, sold: 60, image: "https://images.unsplash.com/photo-1523275335684-37898b6baf30?w=400" },
+            { id: 6, name: "Sepatu Sneakers Casual", price: 185000, category: "Fashion", stock: 8, sold: 85, image: "https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=400" },
+            { id: 7, name: "Kacamata Hitam UV400", price: 65000, category: "Aksesoris", stock: 12, sold: 95, image: "https://images.unsplash.com/photo-1511499767150-a48a237f0083?w=400" }
+        ];
+
+        let products = JSON.parse(localStorage.getItem('buymore_products_v2')) || defaultProducts;
+        let cart = JSON.parse(localStorage.getItem('buymore_cart_v2')) || [];
+        let stockLogs = JSON.parse(localStorage.getItem('buymore_logs_v2')) || [
+            { time: "2026-10-13 09:00", type: "MASUK", name: "Dimsum Mentai Spesial (10 pcs)", qty: 25, note: "Stok Awal Sistem" }
+        ];
+
+        let currentCategory = 'all';
+
+        function saveData() {
+            localStorage.setItem('buymore_products_v2', JSON.stringify(products));
+            localStorage.setItem('buymore_cart_v2', JSON.stringify(cart));
+            localStorage.setItem('buymore_logs_v2', JSON.stringify(stockLogs));
+            updateCartBadge();
+        }
+
+        function switchTab(tabName) {
+            document.querySelectorAll('main > section').forEach(sec => sec.classList.add('hidden'));
+            document.getElementById(`tab-${tabName}`).classList.remove('hidden');
+
+            document.querySelectorAll('header nav button, header div button').forEach(btn => {
+                if(btn.id && btn.id.startsWith('nav-')) {
+                    btn.className = "px-4 py-1.5 rounded-full hover:bg-white/20 text-white transition";
+                }
+            });
+            document.getElementById(`nav-${tabName}`).className = "px-4 py-1.5 rounded-full bg-white text-purple-700 shadow-sm transition font-bold";
+
+            if (tabName === 'shop') renderProducts();
+            if (tabName === 'seller') renderRestokTable();
+            if (tabName === 'logs') renderStockLogs();
+        }
+
+        function renderProducts() {
+            const container = document.getElementById('productContainer');
+            const searchKeyword = document.getElementById('searchInput').value.toLowerCase();
+
+            let filtered = products.filter(p => {
+                let matchCat = currentCategory === 'all' || p.category === currentCategory;
+                let matchSearch = p.name.toLowerCase().includes(searchKeyword);
+                return matchCat && matchSearch;
+            });
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div class="col-span-full text-center py-12 bg-white rounded-2xl shadow-sm border">
+                        <i class="fa-solid fa-box-open text-4xl text-slate-300 mb-2"></i>
+                        <p class="text-slate-500 font-semibold text-sm">Produk / Makanan tidak ditemukan!</p>
+                    </div>`;
+                return;
+            }
+
+            container.innerHTML = filtered.map(p => `
+                <div class="bg-white rounded-2xl shadow-sm hover:shadow-md border border-slate-100 overflow-hidden flex flex-col justify-between transition group">
+                    <div>
+                        <div class="relative overflow-hidden aspect-square bg-slate-100">
+                            <img src="${p.image}" alt="${p.name}" onerror="this.src='https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?w=400'" class="w-full h-full object-cover group-hover:scale-105 transition duration-300">
+                            <span class="absolute top-2 left-2 bg-amber-400 text-slate-900 text-[10px] font-black px-2 py-0.5 rounded-full shadow">FAVORIT</span>
+                        </div>
+                        <div class="p-3">
+                            <span class="text-[10px] font-bold text-purple-600 bg-purple-50 px-2 py-0.5 rounded-md uppercase">${p.category}</span>
+                            <h4 class="font-bold text-slate-800 text-sm mt-1 line-clamp-2 leading-snug">${p.name}</h4>
+                            <div class="mt-2 flex items-baseline justify-between">
+                                <span class="text-sm font-black text-purple-700">Rp ${p.price.toLocaleString('id-ID')}</span>
+                                <span class="text-[10px] text-slate-400">Terjual ${p.sold}</span>
+                            </div>
+                            <p class="text-[11px] mt-1 ${p.stock > 0 ? 'text-slate-500' : 'text-red-500 font-bold'}">
+                                ${p.stock > 0 ? `Sisa stok: <b class="text-slate-700">${p.stock}</b>` : 'Stok Habis!'}
+                            </p>
+                        </div>
+                    </div>
+                    <div class="p-3 pt-0">
+                        <button onclick="addToCart(${p.id})" ${p.stock <= 0 ? 'disabled' : ''} class="w-full py-2 bg-purple-600 hover:bg-purple-700 disabled:bg-slate-300 text-white rounded-xl font-bold text-xs shadow transition flex items-center justify-center space-x-1">
+                            <i class="fa-solid fa-cart-plus"></i>
+                            <span>${p.stock > 0 ? '+ Keranjang' : 'Habis'}</span>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function filterCategory(cat) {
+            currentCategory = cat;
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                btn.className = "cat-btn px-4 py-2 bg-white text-slate-600 hover:bg-purple-50 rounded-xl text-sm font-semibold whitespace-nowrap shadow-sm";
+            });
+            event.target.className = "cat-btn active px-4 py-2 bg-purple-600 text-white rounded-xl text-sm font-semibold whitespace-nowrap shadow-sm";
+            renderProducts();
+        }
+
+        function addToCart(productId) {
+            let product = products.find(p => p.id === productId);
+            if (!product || product.stock <= 0) return;
+
+            let cartItem = cart.find(item => item.id === productId);
+            if (cartItem) {
+                if (cartItem.qty < product.stock) {
+                    cartItem.qty += 1;
+                } else {
+                    alert('Jumlah melebihi sisa stok yang tersedia!');
+                    return;
+                }
+            } else {
+                cart.push({ id: product.id, name: product.name, price: product.price, image: product.image, qty: 1 });
+            }
+
+            saveData();
+            alert(`" ${product.name} " berhasil dimasukkan ke keranjang!`);
+        }
+
+        function updateCartBadge() {
+            let totalQty = cart.reduce((acc, item) => acc + item.qty, 0);
+            document.getElementById('cartCountBadge').innerText = totalQty;
+        }
+
+        function openCartModal() {
+            renderCartModal();
+            document.getElementById('cartModal').classList.remove('hidden');
+        }
+
+        function closeCartModal() {
+            document.getElementById('cartModal').classList.add('hidden');
+        }
+
+        function renderCartModal() {
+            const cartBody = document.getElementById('cartBody');
+            const cartFooter = document.getElementById('cartFooter');
+
+            if (cart.length === 0) {
+                cartBody.innerHTML = `
+                    <div class="text-center py-12">
+                        <i class="fa-solid fa-basket-shopping text-5xl text-slate-300 mb-3"></i>
+                        <p class="text-slate-600 font-bold">Keranjang Anda masih kosong!</p>
+                        <p class="text-xs text-slate-400 mt-1">Yuk pilih makanan atau produk favoritmu di Buymore sekarang.</p>
+                    </div>`;
+                cartFooter.classList.add('hidden');
+                return;
+            }
+
+            cartFooter.classList.remove('hidden');
+
+            let total = 0;
+            cartBody.innerHTML = cart.map(item => {
+                let itemTotal = item.price * item.qty;
+                total += itemTotal;
+                return `
+                    <div class="flex items-center justify-between border-b pb-3 mb-3">
+                        <div class="flex items-center space-x-3">
+                            <img src="${item.image}" onerror="this.src='https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?w=400'" class="w-14 h-14 object-cover rounded-xl border">
+                            <div>
+                                <h5 class="font-bold text-sm text-slate-800 line-clamp-1">${item.name}</h5>
+                                <span class="text-xs text-purple-700 font-bold">Rp ${item.price.toLocaleString('id-ID')}</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center space-x-3">
+                            <div class="flex items-center border rounded-lg overflow-hidden bg-slate-50">
+                                <button onclick="changeCartQty(${item.id}, -1)" class="px-2 py-1 bg-slate-200 hover:bg-slate-300 font-bold text-xs">-</button>
+                                <span class="px-3 text-xs font-bold">${item.qty}</span>
+                                <button onclick="changeCartQty(${item.id}, 1)" class="px-2 py-1 bg-slate-200 hover:bg-slate-300 font-bold text-xs">+</button>
+                            </div>
+                            <button onclick="removeCartItem(${item.id})" class="text-red-500 hover:text-red-700 text-sm">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            document.getElementById('cartTotalPrice').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        function changeCartQty(id, delta) {
+            let item = cart.find(i => i.id === id);
+            let product = products.find(p => p.id === id);
+
+            if (item && product) {
+                if (delta > 0 && item.qty >= product.stock) {
+                    alert('Stok tidak mencukupi untuk menambah jumlah!');
+                    return;
+                }
+                item.qty += delta;
+                if (item.qty <= 0) {
+                    cart = cart.filter(i => i.id !== id);
+                }
+            }
+            saveData();
+            renderCartModal();
+        }
+
+        function removeCartItem(id) {
+            cart = cart.filter(i => i.id !== id);
+            saveData();
+            renderCartModal();
+        }
+
+        function processCheckout() {
+            if (cart.length === 0) return;
+
+            let now = new Date().toLocaleString('id-ID');
+            cart.forEach(cartItem => {
+                let prod = products.find(p => p.id === cartItem.id);
+                if (prod) {
+                    prod.stock -= cartItem.qty;
+                    prod.sold += cartItem.qty;
+
+                    stockLogs.unshift({
+                        time: now,
+                        type: "KELUAR",
+                        name: prod.name,
+                        qty: cartItem.qty,
+                        note: "Pesanan / Checkout Pelanggan"
+                    });
+                }
+            });
+
+            cart = [];
+            saveData();
+            closeCartModal();
+            alert('🎉 Pesanan Berhasil di-Checkout! Terima kasih telah berbelanja di Buymore.');
+            renderProducts();
+        }
+
+        function handleAddNewProduct(e) {
+            e.preventDefault();
+            let name = document.getElementById('newProdName').value;
+            let category = document.getElementById('newProdCategory').value;
+            let price = parseInt(document.getElementById('newProdPrice').value);
+            let stock = parseInt(document.getElementById('newProdStock').value);
+            let image = document.getElementById('newProdImage').value || 'https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?w=400';
+
+            let newProduct = {
+                id: Date.now(),
+                name: name,
+                price: price,
+                category: category,
+                stock: stock,
+                sold: 0,
+                image: image
+            };
+
+            products.push(newProduct);
+
+            stockLogs.unshift({
+                time: new Date().toLocaleString('id-ID'),
+                type: "MASUK",
+                name: name,
+                qty: stock,
+                note: "Input Menu/Produk Baru"
+            });
+
+            saveData();
+            document.getElementById('addProductForm').reset();
+            alert('Item baru berhasil ditambahkan ke katalog!');
+            renderRestokTable();
+        }
+
+        function renderRestokTable() {
+            const tbody = document.getElementById('restokTableBody');
+            tbody.innerHTML = products.map(p => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 font-semibold text-slate-800 flex items-center space-x-2">
+                        <img src="${p.image}" onerror="this.src='https://images.unsplash.com/photo-1541696432-82c6da8ce7bf?w=400'" class="w-8 h-8 rounded object-cover border">
+                        <span class="line-clamp-1">${p.name}</span>
+                    </td>
+                    <td class="p-3 font-bold text-slate-700">${p.stock}</td>
+                    <td class="p-3">
+                        <div class="flex items-center space-x-1">
+                            <input type="number" id="restok-input-${p.id}" min="1" value="10" class="w-14 px-2 py-1 border rounded text-xs">
+                            <button onclick="handleRestok(${p.id})" class="bg-amber-500 hover:bg-amber-600 text-white px-2.5 py-1 rounded text-xs font-bold transition">
+                                <i class="fa-solid fa-plus"></i>
+                            </button>
+                        </div>
+                    </td>
+                    <td class="p-3 text-center">
+                        <button onclick="deleteProduct(${p.id})" class="bg-red-500 hover:bg-red-600 text-white px-2.5 py-1 rounded text-xs font-bold transition" title="Hapus Produk">
+                            <i class="fa-solid fa-trash"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function handleRestok(productId) {
+            const input = document.getElementById(`restok-input-${productId}`);
+            const qty = parseInt(input.value);
+
+            if (isNaN(qty) || qty <= 0) {
+                alert('Masukkan jumlah restok yang valid!');
+                return;
+            }
+
+            let prod = products.find(p => p.id === productId);
+            if (prod) {
+                prod.stock += qty;
+
+                stockLogs.unshift({
+                    time: new Date().toLocaleString('id-ID'),
+                    type: "MASUK",
+                    name: prod.name,
+                    qty: qty,
+                    note: "Restok Ulang Item"
+                });
+
+                saveData();
+                renderRestokTable();
+                alert(`Berhasil menambah stok " ${prod.name} " sebanyak +${qty} unit!`);
+            }
+        }
+
+        function deleteProduct(productId) {
+            let prod = products.find(p => p.id === productId);
+            if (confirm(`Apakah kamu yakin ingin menghapus "${prod ? prod.name : 'ini'}" dari katalog?`)) {
+                products = products.filter(p => p.id !== productId);
+                cart = cart.filter(item => item.id !== productId);
+                saveData();
+                renderRestokTable();
+                alert('Item berhasil dihapus!');
+            }
+        }
+
+        function renderStockLogs() {
+            const tbody = document.getElementById('logTableBody');
+            if (stockLogs.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-400 text-xs">Belum ada riwayat keluar/masuk barang.</td></tr>`;
+                return;
+            }
+
+            tbody.innerHTML = stockLogs.map(log => `
+                <tr class="hover:bg-slate-50">
+                    <td class="p-3 text-xs text-slate-500">${log.time}</td>
+                    <td class="p-3">
+                        <span class="text-xs px-2.5 py-1 rounded-full font-bold ${log.type === 'MASUK' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}">
+                            <i class="fa-solid ${log.type === 'MASUK' ? 'fa-arrow-down' : 'fa-arrow-up'} mr-1"></i> ${log.type}
+                        </span>
+                    </td>
+                    <td class="p-3 font-semibold text-slate-800">${log.name}</td>
+                    <td class="p-3 text-center font-bold ${log.type === 'MASUK' ? 'text-emerald-600' : 'text-red-600'}">
+                        ${log.type === 'MASUK' ? '+' : '-'}${log.qty}
+                    </td>
+                    <td class="p-3 text-xs text-slate-500">${log.note}</td>
+                </tr>
+            `).join('');
+        }
+
+        function clearStockLogs() {
+            if (confirm('Apakah Anda yakin ingin menghapus seluruh riwayat laporan?')) {
+                stockLogs = [];
+                saveData();
+                renderStockLogs();
+            }
+        }
+
+        saveData();
+        renderProducts();
+    </script>
+</body>
+</html>
